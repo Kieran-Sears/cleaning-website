@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pressure Washing Cost Estimator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center px-4 py-8">
+  <div class="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">Pressure Washing Cost Estimator</h1>
+    <p class="text-gray-500 mb-6 text-center">Get a quick estimate of what you might expect to pay per square meter for pressure washing services, including optional extras.</p>
+    
+    <form id="costForm" class="space-y-4 mb-8">
+      <div>
+        <label for="sqm" class="block text-gray-700 font-semibold mb-1">Area to be cleaned (m²):</label>
+        <input type="number" id="sqm" name="sqm" min="1" value="50" required
+          class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <fieldset class="border rounded p-4">
+        <legend class="text-gray-700 font-semibold mb-2">Optional Services:</legend>
+        <div class="flex items-center mb-2">
+          <input type="checkbox" id="resanding" name="resanding" class="mr-2">
+          <label for="resanding" class="text-gray-700">Resanding (for block paving)</label>
+        </div>
+        <div class="flex items-center mb-2">
+          <input type="checkbox" id="repointing" name="repointing" class="mr-2">
+          <label for="repointing" class="text-gray-700">Repointing (for patios/walls)</label>
+        </div>
+        <div class="flex items-center">
+          <input type="checkbox" id="sealing" name="sealing" class="mr-2">
+          <label for="sealing" class="text-gray-700">Chemical Sealing</label>
+        </div>
+      </fieldset>
+    </form>
+    
+    <div id="breakdown" class="bg-blue-50 rounded-lg p-4 mb-6">
+      <!-- JS will inject estimate breakdown here -->
+    </div>
+    
+    <div class="text-xs text-gray-500 border-l-4 border-yellow-400 pl-3">
+      <strong>Disclaimer:</strong> These figures are provided as a general guideline only. Final quotes may vary depending on a range of factors, including but not limited to: extent of oil/lichen staining, access to site, material type and condition, minimum call-out charges, and other unforeseen variables. Always request a personal assessment for an accurate quote.
+    </div>
+    
+    <footer class="mt-8 text-center text-gray-400 text-xs">
+      &copy; 2025 Your Company Name
+    </footer>
+  </div>
+  <script>
+    // Example base prices (per sqm)
+    const PRICES = {
+      base: 5,          // Pressure washing (per m²)
+      resanding: 2.0,     // Resanding (per m²)
+      repointing: 6.0,    // Repointing (per m²)
+      sealing: 4.0        // Chemical sealing (per m²)
+    };
+
+    // Format currency
+    function formatGBP(num) {
+      return '£' + num.toFixed(2);
+    }
+
+    function calculateAndRender() {
+      const sqm = Math.max(1, parseFloat(document.getElementById('sqm').value) || 1);
+      const resanding = document.getElementById('resanding').checked;
+      const repointing = document.getElementById('repointing').checked;
+      const sealing = document.getElementById('sealing').checked;
+
+      // Itemized
+      let breakdown = [
+        {
+          label: 'Pressure Washing',
+          enabled: true,
+          price: PRICES.base
+        },
+        {
+          label: 'Resanding',
+          enabled: resanding,
+          price: PRICES.resanding
+        },
+        {
+          label: 'Repointing',
+          enabled: repointing,
+          price: PRICES.repointing
+        },
+        {
+          label: 'Chemical Sealing',
+          enabled: sealing,
+          price: PRICES.sealing
+        }
+      ];
+
+      let rows = breakdown.filter(i => i.enabled)
+        .map(i => `
+          <tr>
+            <td class="py-1">${i.label}</td>
+            <td class="py-1 text-right">${formatGBP(i.price)} per m²</td>
+            <td class="py-1 text-right">${formatGBP(i.price * sqm)}</td>
+          </tr>
+        `).join('');
+
+      const totalPerSqm = breakdown.reduce((sum, i) => i.enabled ? sum + i.price : sum, 0);
+      const total = totalPerSqm * sqm;
+
+      document.getElementById('breakdown').innerHTML = `
+        <h2 class="font-semibold text-blue-700 mb-2">Estimated Breakdown</h2>
+        <table class="w-full text-sm">
+          <thead>
+            <tr>
+              <th class="text-left pb-1">Service</th>
+              <th class="text-right pb-1">Unit Cost</th>
+              <th class="text-right pb-1">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+          <tfoot>
+            <tr class="border-t font-bold">
+              <td class="pt-2">Total</td>
+              <td class="pt-2 text-right">${formatGBP(totalPerSqm)} per m²</td>
+              <td class="pt-2 text-right">${formatGBP(total)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+    }
+
+    // Attach events
+    document.getElementById('costForm').addEventListener('input', calculateAndRender);
+
+    // Initial render
+    calculateAndRender();
+  </script>
+</body>
+</html>
