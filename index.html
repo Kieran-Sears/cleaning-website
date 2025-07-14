@@ -7,7 +7,7 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center px-4 py-8">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center px-6 py-8">
   <div class="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8">
     <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">Pressure Washing Cost Estimator</h1>
     <p class="text-gray-500 mb-6 text-center">Get a quick estimate of what you might expect to pay per square meter for pressure washing services, including optional extras.</p>
@@ -55,13 +55,13 @@
     </div>
     
     <footer class="mt-8 text-center text-gray-400 text-xs">
-      &copy; 2025 Your Company Name
+      &copy; 2025 K Sears External Cleaning Services
     </footer>
   </div>
   <script>
     // Example base prices (per sqm)
     const PRICES = {
-      base: 5,             // Pressure washing with SH (per m²)
+      base: 3.5,             // Pressure washing with SH (per m²)
       base_no_sh: 2.7,       // Pressure washing WITHOUT SH (per m²)
       resanding: 2.0,        // Resanding (per m²)
       repointing: 6.0,       // Repointing (per m²)
@@ -113,36 +113,52 @@
         .map(i => `
           <tr>
             <td class="py-1">${i.label}</td>
-            <td class="py-1 text-right">${formatGBP(i.price)} per m²</td>
-            <td class="py-1 text-right">${formatGBP(i.price * sqm)}</td>
+            <td class="py-2 text-right">
+                <div class="flex flex-col items-end">
+                    <span class="text-sm font-medium">${formatGBP(i.price)}</span>
+                    <span class="text-xs text-gray-600 mt-1">per m<sup>2</sup></span>
+                </div>
+            </td>
+            <td class="py-2 text-right">${formatGBP(i.price * sqm)}</td>
           </tr>
         `).join('');
 
       const totalPerSqm = breakdown.reduce((sum, i) => i.enabled ? sum + i.price : sum, 0);
       const total = totalPerSqm * sqm;
 
-      document.getElementById('breakdown').innerHTML = `
-        <h2 class="font-semibold text-blue-700 mb-2">Estimated Breakdown</h2>
-        <table class="w-full text-sm">
-          <thead>
+document.getElementById('breakdown').innerHTML = `
+    <h2 class="font-semibold text-blue-700 mb-2">Estimated Breakdown</h2>
+    <table class="w-full text-xs">
+        <colgroup>
+            <col style="width: 50%;">
+            <col style="width: 25%;">
+            <col style="width: 25%;">
+        </colgroup>
+        <thead>
             <tr>
-              <th class="text-left pb-1">Service</th>
-              <th class="text-right pb-1">Unit Cost</th>
-              <th class="text-right pb-1">Total</th>
+                <th class="text-left pb-1">Service</th>
+                <th class="text-right pb-1">Unit Cost</th>
+                <th class="text-right pb-1">Total</th>
             </tr>
-          </thead>
-          <tbody>
+        </thead>
+        <tbody>
             ${rows}
-          </tbody>
-          <tfoot>
-            <tr class="border-t font-bold">
-              <td class="pt-2">Total</td>
-              <td class="pt-2 text-right">${formatGBP(totalPerSqm)} per m²</td>
-              <td class="pt-2 text-right">${formatGBP(total)}</td>
+        </tbody>
+        <tfoot>
+            <tr class="border-t">
+                <td class="pt-2">Total</td>
+                <td class="pt-2 text-right">
+                    <div class="flex flex-col items-end">
+                        <span class="text-sm font-medium">${formatGBP(totalPerSqm)}</span>
+                        <span class="text-xs text-gray-600 mt-1">per m<sup>2</sup></span>
+                    </div>
+                </td>
+                <td class="pt-2 text-right text-lg">${formatGBP(total)}</td>
             </tr>
-          </tfoot>
-        </table>
-      `;
+        </tfoot>
+    </table>
+`;
+
     }
 
     document.getElementById('costForm').addEventListener('input', calculateAndRender);
