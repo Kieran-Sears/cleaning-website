@@ -12,6 +12,13 @@
     <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">Pressure Washing Cost Estimator</h1>
     <p class="text-gray-500 mb-6 text-center">Get a quick estimate of what you might expect to pay per square meter for pressure washing services, including optional extras.</p>
     
+    <div class="mb-6 bg-blue-100 rounded p-3 text-blue-900 text-sm flex items-start">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12A9 9 0 113 12a9 9 0 0118 0z" /></svg>
+      <span>
+        Our standard pressure washing service includes the application of sodium hypochlorite to achieve the highest standard of cleanliness. If you would prefer this solution not be used, you may opt out below, which will reduce the quoted price. Please note, however, that cleaning results may not be as thorough without it.
+      </span>
+    </div>
+    
     <form id="costForm" class="space-y-4 mb-8">
       <div>
         <label for="sqm" class="block text-gray-700 font-semibold mb-1">Area to be cleaned (m²):</label>
@@ -28,16 +35,20 @@
           <input type="checkbox" id="repointing" name="repointing" class="mr-2">
           <label for="repointing" class="text-gray-700">Repointing (for patios/walls)</label>
         </div>
-        <div class="flex items-center">
+        <div class="flex items-center mb-2">
           <input type="checkbox" id="sealing" name="sealing" class="mr-2">
           <label for="sealing" class="text-gray-700">Chemical Sealing</label>
+        </div>
+        <div class="flex items-center">
+          <input type="checkbox" id="exclude_sh" name="exclude_sh" class="mr-2">
+          <label for="exclude_sh" class="text-gray-700">
+            Exclude sodium hypochlorite (reduced price, less effective clean)
+          </label>
         </div>
       </fieldset>
     </form>
     
-    <div id="breakdown" class="bg-blue-50 rounded-lg p-4 mb-6">
-      <!-- JS will inject estimate breakdown here -->
-    </div>
+    <div id="breakdown" class="bg-blue-50 rounded-lg p-4 mb-6"></div>
     
     <div class="text-xs text-gray-500 border-l-4 border-yellow-400 pl-3">
       <strong>Disclaimer:</strong> These figures are provided as a general guideline only. Final quotes may vary depending on a range of factors, including but not limited to: extent of oil/lichen staining, access to site, material type and condition, minimum call-out charges, and other unforeseen variables. Always request a personal assessment for an accurate quote.
@@ -50,13 +61,13 @@
   <script>
     // Example base prices (per sqm)
     const PRICES = {
-      base: 5,          // Pressure washing (per m²)
-      resanding: 2.0,     // Resanding (per m²)
-      repointing: 6.0,    // Repointing (per m²)
-      sealing: 4.0        // Chemical sealing (per m²)
+      base: 5,             // Pressure washing with SH (per m²)
+      base_no_sh: 2.7,       // Pressure washing WITHOUT SH (per m²)
+      resanding: 2.0,        // Resanding (per m²)
+      repointing: 6.0,       // Repointing (per m²)
+      sealing: 4.0           // Chemical sealing (per m²)
     };
 
-    // Format currency
     function formatGBP(num) {
       return '£' + num.toFixed(2);
     }
@@ -66,13 +77,20 @@
       const resanding = document.getElementById('resanding').checked;
       const repointing = document.getElementById('repointing').checked;
       const sealing = document.getElementById('sealing').checked;
+      const exclude_sh = document.getElementById('exclude_sh').checked;
+
+      // Decide which price to use for base clean
+      const baseLabel = exclude_sh
+        ? "Pressure Washing (without sodium hypochlorite)"
+        : "Pressure Washing (with sodium hypochlorite)";
+      const basePrice = exclude_sh ? PRICES.base_no_sh : PRICES.base;
 
       // Itemized
       let breakdown = [
         {
-          label: 'Pressure Washing',
+          label: baseLabel,
           enabled: true,
-          price: PRICES.base
+          price: basePrice
         },
         {
           label: 'Resanding',
@@ -127,10 +145,7 @@
       `;
     }
 
-    // Attach events
     document.getElementById('costForm').addEventListener('input', calculateAndRender);
-
-    // Initial render
     calculateAndRender();
   </script>
 </body>
